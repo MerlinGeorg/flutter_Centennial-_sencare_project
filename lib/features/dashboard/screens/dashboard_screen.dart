@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sencare_project/core/constants/app_constants.dart';
+import 'package:sencare_project/core/services/navigation_service.dart';
 import 'package:sencare_project/core/widgets/custom_bottom_bar.dart';
 import 'package:sencare_project/core/widgets/logout_button.dart';
 import 'package:sencare_project/features/patients/resident_list_screen.dart';
@@ -211,7 +212,12 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildPatientCard(String name) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        NavigationService.instance.navigateTo('/patientDetails');
+      },
+
+      child: Container(
       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -225,7 +231,10 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+    )
     );
+    
+   
   }
 
   Widget _buildTaskCard(String task) {

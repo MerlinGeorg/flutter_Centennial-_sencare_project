@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sencare_project/features/auth/screens/login_screen.dart';
 import 'package:sencare_project/features/auth/screens/register_screen.dart';
 import 'package:sencare_project/features/dashboard/screens/dashboard_screen.dart';
+import 'package:sencare_project/features/patients/patient_details_screen.dart';
 import 'package:sencare_project/features/patients/resident_list_screen.dart';
 import 'package:sencare_project/features/tasks/task_list_screen.dart';
 
@@ -17,6 +18,8 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String patients = '/patients';
   static const String tasks = '/tasks';
+  static const String patientDetails = '/patientDetails';
+//  static const String taskDetails = '/tasks';
 
 
   // Route map
@@ -25,6 +28,8 @@ class AppRoutes {
     register: (context) => const RegisterScreen(),
     dashboard: (context) => const DashboardScreen(),
     patients: (context) =>  ResidentListScreen(),
-    tasks: (context) =>  TaskListScreen(),    
+    tasks: (context) =>  TaskListScreen(), 
+    patientDetails: (context) =>  PatientDetailsScreen(),
+   // taskDetails: (context) =>  TaskListScreen(),    
   };
 }

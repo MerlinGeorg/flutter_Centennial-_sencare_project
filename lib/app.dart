@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:sencare_project/config/routes.dart';
 import 'package:sencare_project/config/theme.dart';
-import 'package:sencare_project/core/services/navigation_service.dart';
-import 'package:sencare_project/features/auth/screens/login_screen.dart';
-import 'package:sencare_project/features/auth/services/auth_service.dart';
+import 'package:sencare_project/services/navigation_service.dart';
+import 'package:sencare_project/screens/login_screen.dart';
+import 'package:sencare_project/services/auth_service.dart';
 
 class SenCareApp extends StatelessWidget {
 

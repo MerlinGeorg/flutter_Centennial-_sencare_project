@@ -26,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // Boolean to track login button loading state
   bool _isLoading = false;
+  bool _passwordVisible = false;
 
   @override
   void dispose() {
@@ -88,9 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+  child: Center(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // App Logo
                 Center(
@@ -138,7 +139,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 AppTextField(
                   controller: _passwordController,
                    hintText: 'Password',
-                  obsureText: true,
+                  obscureText: !_passwordVisible,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible? Icons.visibility : Icons.visibility_off,
+                      color: Colors.grey,
+                    ),
+                    onPressed: (){
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
                   validator: (value) {
                     if(value == null || value.isEmpty) {
                       return 'Please enter your password';
@@ -187,6 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],)
               ],
             ),
+  ),
           )
         )))
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sencare_project/config/routes.dart';
 import 'package:sencare_project/services/api_service.dart';
 import 'package:sencare_project/widgets/AnimatedPressableButton.dart';
 import 'patient_record_screen.dart';
@@ -6,7 +7,8 @@ import 'patient_record_screen.dart';
 class PatientDetailsScreen extends StatefulWidget {
   final String patientId; // Pass patient ID to fetch specific details
 
-  const PatientDetailsScreen({Key? key, required this.patientId}) : super(key: key);
+  const PatientDetailsScreen({Key? key, required this.patientId})
+      : super(key: key);
 
   @override
   _PatientDetailsScreenState createState() => _PatientDetailsScreenState();
@@ -40,22 +42,56 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
     }
   }
 
+Widget _buildPatientInfoCard() {
+  return Card(
+    elevation: 4,
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoRow('Age', '${patientDetails!['age'] ?? ''}'),
+            _buildInfoRow('Admission Date', '${patientDetails!['admission_date'] ?? ''}'),
+            _buildInfoRow('Admission Number', '${patientDetails!['admission_number'] ?? ''}'),
+            _buildInfoRow('Health Status', '${patientDetails!['health_status'] ?? ''}'),
+            _buildInfoRow('Health Conditions', '${patientDetails!['health_conditions'] ?? ''}'),
+        ],
+      ),
+    ),
+  );
+}
 
-@override
+Widget _buildInfoRow(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Text(value),
+      ],
+    ),
+  );
+}
+
+  @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
 
     // Show a loading spinner while fetching data
-  if (isLoading) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Patient Details'),
-      ),
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Patient Details'),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return PopScope(
       canPop: false,
@@ -124,7 +160,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(children: [
                     Text(
-                      'Age: 60',
+                      'Room Number:  ${patientDetails!['room_number'] ?? ''}',
                       style: TextStyle(fontSize: 18),
                     ),
                     SizedBox(height: 20),
@@ -132,13 +168,19 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
                     SizedBox(height: 20),
                     AnimatedPressableButton(
                       onPressed: () {
-                        Navigator.push(
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => PatientRecordScreen(patientId: '${widget.patientId}')),
+                        // );
+                        Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => PatientRecordScreen()),
+                          AppRoutes.medicalRecordList,
+                          arguments: {'patientId': widget.patientId},
                         );
                       },
                       text: 'Medical History',
+                      patientId: widget.patientId,
                     )
                   ]),
                 )
@@ -147,37 +189,3 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
   }
 }
 
-Widget _buildPatientInfoCard() {
-  return Card(
-    elevation: 4,
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInfoRow('Health Status', 'Normal'),
-          _buildInfoRow('Admission Date', '04/28/2020'),
-          _buildInfoRow('Admission Number', 'OKP200'),
-          _buildInfoRow('Room Number', '305'),
-          _buildInfoRow('Health Conditions', 'Obese, Paralyzed'),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _buildInfoRow(String label, String value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text(value),
-      ],
-    ),
-  );
-}

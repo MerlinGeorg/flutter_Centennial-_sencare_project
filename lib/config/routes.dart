@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:sencare_project/screens/login_screen.dart';
 import 'package:sencare_project/screens/patients/add_patients_screen.dart';
+import 'package:sencare_project/screens/patients/patient_record_screen.dart';
 import 'package:sencare_project/screens/register_screen.dart';
 import 'package:sencare_project/screens/dashboard_screen.dart';
 import 'package:sencare_project/screens/patients/edit_patients_screen.dart';
@@ -25,6 +26,7 @@ class AppRoutes {
   static const String addPatient = '/addPatient';
   static const String editPatient = '/editPatient';
   static const String newPatientRecord = '/newPatientRecord';
+  static const String medicalRecordList = '/medicalRecordList';
 //  static const String taskDetails = '/tasks';
 
 
@@ -49,7 +51,14 @@ class AppRoutes {
         // roomNumber: args['roomNumber']!,
       );
     }, 
-    newPatientRecord: (context) =>  NewPatientRecordScreen(),
+    medicalRecordList: (context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    return PatientRecordScreen(patientId: args['patientId']);
+  },
+    newPatientRecord: (context) {
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    return NewPatientRecordScreen(patientId: args['patientId']);
+  },
     addPatient: (context) =>  AddPatientScreen(),
    // taskDetails: (context) =>  TaskListScreen(),    
   };

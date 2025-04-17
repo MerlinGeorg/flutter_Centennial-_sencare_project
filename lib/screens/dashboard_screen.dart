@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sencare_project/constants/app_constants.dart';
+import 'package:sencare_project/services/api_service.dart';
 import 'package:sencare_project/services/navigation_service.dart';
 import 'package:sencare_project/widgets/custom_bottom_bar.dart';
 import 'package:sencare_project/widgets/logout_button.dart';
@@ -9,7 +10,7 @@ import 'package:sencare_project/screens/tasks/task_list_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({Key? key}) : super(key: key);
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -56,51 +57,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: _pages.isNotEmpty
           ? _pages[_selectedIndex]
           : const Center(child: CircularProgressIndicator()),
-      bottomNavigationBar: _pages.isNotEmpty ? CustomBottomBar(selectedIndex: _selectedIndex, onItemTapped: _onItemTapped) : null,
+      bottomNavigationBar: _pages.isNotEmpty
+          ? CustomBottomBar(
+              selectedIndex: _selectedIndex, onItemTapped: _onItemTapped)
+          : null,
     );
   }
 }
 
 class HomeScreen extends StatelessWidget {
   final String name;
+  final apiService = ApiService();
 
-  const HomeScreen({super.key, required this.name});
+  HomeScreen({Key? key, required this.name}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SingleChildScrollView(
-           child: Column(
+        child: SingleChildScrollView(
+            child: Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end, 
-            children: [LogoutButton()]
-          ),
-        ),
-
+  //       Spacer(), 
         // Welcome Card with Logo
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0),
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          decoration: BoxDecoration(
-              color: const Color(0xFFB2F0D1),
-              borderRadius: BorderRadius.circular(20.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                )
-              ]),
-          child: Column(
-            children: [
-              Text('Welcome $name',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
+        Padding(   // Add padding here instead of outside the container
+          padding: const EdgeInsets.only(top: 20.0),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            decoration: BoxDecoration(
+                color: const Color(0xFFB2F0D1),
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                  )
+                ]),
+            child: Column(
 
-              const SizedBox(height: 8),
+              children: [
+                Padding(   // Add padding here instead of outside the container
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'Welcome $name',
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
+                       Align(
+                         alignment: Alignment.centerRight,
+                         child: LogoutButton(),
+                       )
+                    ],
+                  ),
+                ),
+              
+              const SizedBox(height: 16),
 
               // const SizedBox(height: 16),
 
@@ -166,11 +185,40 @@ class HomeScreen extends StatelessWidget {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 12),
-                    // Patient Cards
-                    _buildPatientCard('John Smith'),
-                    const SizedBox(height: 8),
-                    _buildPatientCard('Karake'),
+                    const SizedBox(height: 12), // Patient Cards
+                    FutureBuilder<List<Map<String, dynamic>>>(
+                        future: apiService.fetchCriticalPatients('fetch'),
+                        builder: (context, snapshot) {
+                          print(
+                              "Snapshot Connection State: ${snapshot.connectionState}");
+                          if (snapshot.hasData) {
+                            print("Snapshot Data: ${snapshot.data}");
+                          }
+                          if (snapshot.hasError) {
+                            print("Snapshot Error: ${snapshot.error}");
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else if (snapshot.hasData &&
+                              snapshot.data!.isNotEmpty) {
+                            print("critic snapshot patient: ${snapshot.data} ");
+                            return Column(
+                              children: snapshot.data!
+                                  .map((patient) => _buildPatientCard(
+                                      patient['name'], patient['_id']))
+                                  .toList(),
+                            );
+                          } else {
+                            return const Text('No critical patients found.');
+                          }
+                        })
+
+                    // _buildPatientCard('John Smith'),
+                    // const SizedBox(height: 8),
+                    // _buildPatientCard('Karake'),
                   ],
                 ),
               ),
@@ -203,38 +251,34 @@ class HomeScreen extends StatelessWidget {
               )
             ],
           ),
+        ),
         )
       ],
-    )
-      )
-     
-    );
+    )));
   }
 
-  Widget _buildPatientCard(String name) {
+  Widget _buildPatientCard(String name, String patientId) {
+    print("Building patient card for: Name=$name, ID=$patientId");
     return GestureDetector(
-      onTap: () {
-        NavigationService.instance.navigateTo('/patientDetails');
-      },
-
-      child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: Center( 
-        child: Text(
-          name,
-          style: const TextStyle(
-            fontSize: 16,
+        onTap: () {
+          NavigationService.instance.navigateTo('/patientDetails',
+              arguments: {'patientId': patientId});
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16.0),
           ),
-        ),
-      ),
-    )
-    );
-    
-   
+          child: Center(
+            child: Text(
+              name,
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ));
   }
 
   Widget _buildTaskCard(String task) {

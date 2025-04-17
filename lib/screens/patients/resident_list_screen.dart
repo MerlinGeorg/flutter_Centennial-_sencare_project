@@ -19,6 +19,7 @@ class _ResidentListScreenState extends State<ResidentListScreen> {
   final apiService = ApiService();
 
   List<dynamic> residents = [];
+  List<dynamic> filteredResidents = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -40,13 +41,11 @@ class _ResidentListScreenState extends State<ResidentListScreen> {
       final data = await apiService.get('/fetch');
       setState(() {
         residents = data;
+         filteredResidents = List.from(residents);
         isLoading = false;
       });
       print("API data: $data");
       print("API id: ${data[0]['_id']}");
-      print("API id: ${data[1]['_id']}");
-      print("API id: ${data[2]['_id']}");
-     
     } catch (e) {
       setState(() {
         errorMessage = e.toString();
@@ -69,6 +68,15 @@ class _ResidentListScreenState extends State<ResidentListScreen> {
     }
   }
 
+  void _filterResidents(String query) {
+    setState(() {
+      filteredResidents = residents
+          .where((resident) =>
+              resident['name'].toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,47 +91,38 @@ class _ResidentListScreenState extends State<ResidentListScreen> {
         children: [
           SearchBar(
             controller: _searchController,
-            onChanged: (value) => {},
+            // onChanged: (value) => {},
+            onChanged: _filterResidents,
           ),
           Expanded(
-            // child: ListView(
-            //   children: [
-            //     ResidentListItem(
-            //       name: 'Dal Fig',
-            //       age: 60,
-            //     ),
-            //   ],
-            // ),
-            child: ListView.builder(
-                itemCount: residents.length,
-                itemBuilder: (context, index) {
-                  final resident = residents[index];
-                  //  print("Resident Keys: $resident");
-                  // print("patientId: ${resident['_id']}");
-                  
-                  return ResidentListItem(
-                      name: resident['name'],
-                      age: resident['age'],
-                     //  id: resident['_id'],
-                      onViewDetails: () => Navigator.pushNamed(
-                          context,
-                          // MaterialPageRoute(
-                          //     builder: (context) => PatientDetailsScreen(patientId: resident['_id']))
-                           AppRoutes.patientDetails,
-                          arguments: {'patientId': resident['_id']},
-                        ),
-                      onEditDetails: () =>
-                          // NavigationService.instance.navigateTo('/editPatient/${resident['_id']}'),
-                          Navigator.pushNamed(
-  context,
-  AppRoutes.editPatient,
-  arguments: {
-    'patientId': resident['_id']
-  },
-),
-                      onDeleteResident: () async =>
-                          deleteResident(resident['_id']));
-                }),
+            child: isLoading
+                ? Center(child: CircularProgressIndicator())
+                : filteredResidents.isEmpty
+                    ? const Center(child: Text('No residents found.'))
+                : residents.isEmpty
+                    ? Center(
+                        child: Text('No residents found.'),
+                      )
+                    : ListView.builder(
+                        itemCount: residents.length,
+                        itemBuilder: (context, index) {
+                          final resident = residents[index];
+
+                          return ResidentListItem(
+                              name: resident['name'],
+                              onViewDetails: () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.patientDetails,
+                                    arguments: {'patientId': resident['_id']},
+                                  ),
+                              onEditDetails: () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.editPatient,
+                                    arguments: {'patientId': resident['_id']},
+                                  ),
+                              onDeleteResident: () async =>
+                                  deleteResident(resident['_id']));
+                        }),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -153,8 +152,6 @@ class _ResidentListScreenState extends State<ResidentListScreen> {
 
 class ResidentListItem extends StatelessWidget {
   final String name;
-  final int age;
- // final String id;
   final VoidCallback onViewDetails;
   final VoidCallback onEditDetails;
   final VoidCallback onDeleteResident;
@@ -162,8 +159,6 @@ class ResidentListItem extends StatelessWidget {
   const ResidentListItem(
       {Key? key,
       required this.name,
-      required this.age,
-    //  required this.id,
       required this.onViewDetails,
       required this.onEditDetails,
       required this.onDeleteResident})
@@ -173,7 +168,6 @@ class ResidentListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(name),
-      subtitle: Text('Age: $age'),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -181,18 +175,9 @@ class ResidentListItem extends StatelessWidget {
             icon: Icon(Icons.remove_red_eye, color: Colors.green),
             onPressed: onViewDetails,
           ),
-       //  Text("patientId: $id"),
           IconButton(
             icon: Icon(Icons.edit),
-            onPressed: onEditDetails
-              // NavigationService.instance.navigateTo('/editPatient', arguments: {
-              //   'name': 'Dal Fig',
-              //   'age': '60',
-              //   'healthStatus': 'Normal',
-              //   'medicalHistory': 'Obese, Paralyzed',
-              //   'roomNumber': '305',
-              // });
-            ,
+            onPressed: onEditDetails,
           ),
           IconButton(
             icon: Icon(Icons.delete),

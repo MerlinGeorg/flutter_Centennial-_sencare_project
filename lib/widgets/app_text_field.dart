@@ -5,29 +5,33 @@ import 'package:flutter/material.dart';
 class AppTextField extends StatelessWidget{
   final TextEditingController controller;
   final String hintText;
-  final bool obsureText;
+  final bool obscureText;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
+  final Widget? suffixIcon;
 
   const AppTextField({
     super.key,
     required this.controller,
     required this.hintText,
-    this.obsureText = false,
+    this.obscureText = false,
     this.keyboardType = TextInputType.text,
-    this.validator
+    this.validator,
+    this.suffixIcon
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      obscureText: obsureText,
+      obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
       decoration: InputDecoration(
-        hintText: hintText
+        hintText: hintText,
+        suffixIcon: suffixIcon
       ),
+      autofocus: false,
     );
   }
 }

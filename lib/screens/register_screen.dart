@@ -135,7 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     AppTextField(
                       controller: _passwordController,
                       hintText: 'Password',
-                      obsureText: true,
+                      obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a password';
@@ -152,7 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     AppTextField(
                       controller: _confirmPasswordController,
                       hintText: 'Confirm Password',
-                      obsureText: true,
+                      obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please confirm your password';
